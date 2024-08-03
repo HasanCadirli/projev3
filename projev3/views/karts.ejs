@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+    <title>Naya</title>
+    <!-- Favicon-->
+    <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
+    <!-- Bootstrap icons-->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css" rel="stylesheet" />
+    <!-- Core theme CSS (includes Bootstrap)-->
+    <link href="css/styles.css" rel="stylesheet" />
+</head>
+<body>
+<!-- Navigation-->
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container px-4 px-lg-5">
+        <a class="navbar-brand" href="#!">Naya Teknoloji</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
+                <li class="nav-item"><a class="nav-link active" aria-current="page" href="/">Home</a></li>
+            </ul>
+            <!-- Updated Search Form -->
+            <form class="d-flex" role="search">
+                <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" id="search-input">
+                <button class="btn btn-outline-success" type="button" id="search-button">Search</button>
+            </form>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="margin-bottom: 15px; margin-left: 5px">
+                    Sorting
+                </a>
+                <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <li><a class="dropdown-item" href="#!">Price High to Low</a></li>
+                    <li><hr class="dropdown-divider" /></li>
+                    <li><a class="dropdown-item" href="#!">Price Low to High</a></li>
+                    <li><a class="dropdown-item" href="#!">Rating Low to High</a></li>
+                    <li><a class="dropdown-item" href="#!" style="margin-left: 8px;">Rating High to Low</a></li>
+                </ul>
+            </li>
+        </div>
+    </div>
+</nav>
+<!-- Header-->
+<header class="bg-dark py-5">
+    <div class="container px-4 px-lg-5 my-5">
+        <div class="text-center text-white">
+            <h1 class="display-4 fw-bolder">NAYA</h1>
+        </div>
+    </div>
+</header>
+<!-- Section-->
+<section class="py-5">
+    <div class="container px-4 px-lg-5 mt-5">
+        <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
+            <!-- Category 1 -->
+                
+            <% for (kart of karts) { %> 
+            <div class="col mb-5" data-category="<%= kart.kategori%>">
+                <div class="card h-100">
+
+                    <% if (kart.promosyon) { %>
+                        <div class="badge bg-dark text-white position-absolute" style="top: 0.5rem; right: 0.5rem">Sale</div>
+                    <% } %>
+
+                    <img class="card-img-top" src="<%= kart.link%>" alt="..." />
+                    <div class="card-body p-4">
+                        <div class="text-center">
+                            <h5 class="fw-bolder"><%= kart.isim %></h5>
+                            <div class="d-flex justify-content-center small text-warning mb-2">
+                                <% for (let i = 0; i < kart.yildizSayisi; i++) { %>
+                                    <div class="bi-star-fill"></div>
+                                <% } %>
+                            </div>
+                            <h5><%= kart.fiyat %></h5><h5>$</h5>
+                        </div>
+                    </div>
+                    <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
+                        <div class="text-center"><a class="btn btn-outline-dark mt-auto" href="#">View options</a></div>
+                    </div>
+                </div>
+            </div>
+
+        <% } %>
+        
+        </div>
+    </div>
+</section>
+<!-- Footer-->
+<footer class="py-5 bg-dark">
+    <div class="container"><p class="m-0 text-center text-white">Copyright &copy; Your Website 2023</p></div>
+</footer>
+<!-- Bootstrap core JS-->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Core theme JS-->
+<script src="js/scripts.js"></script>
+<!-- Custom JS for sorting and filtering-->
+
+<!--         //EJS ile ana sayfalarımı oluşturduğumdan harici olarak js dosyamı bağladığımda template engine render edemiyor ben de ayrı bir klasör içerisinde js dosyalarımı belirtim
+     -->
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const productsContainer = document.querySelector('.row');
+        const products = Array.from(document.querySelectorAll('.col'));
+        const searchInput = document.getElementById('search-input');
+        const searchButton = document.getElementById('search-button');
+
+        const getProductData = (product) => {
+            let priceText = product.querySelector('.card-body').textContent || product.querySelector('.fw-bolder').parentElement.textContent;
+            let price;
+
+            priceText = priceText.replace(/\s/g, '').replace(/[^\d\.-]/g, '');
+
+            if (priceText.includes('-')) {
+                const priceRange = priceText.split('-').map(price => parseFloat(price.replace('$', '').trim()));
+                price = (priceRange[0] + priceRange[1]) / 2; 
+            } else {
+                price = parseFloat(priceText.replace('$', ''));
+            }
+
+            const rating = product.querySelectorAll('.bi-star-fill').length;
+            const isOnSale = product.querySelector('.badge') !== null; 
+            const productName = product.querySelector('.fw-bolder') ? product.querySelector('.fw-bolder').textContent.toLowerCase() : '';
+            const category = product.getAttribute('data-category');
+            return { product, price, rating, isOnSale, productName, category };
+        };
+
+        const sortProducts = (criteria, order = 'asc') => {
+            const sortedProducts = products
+                .map(getProductData)
+                .sort((a, b) => {
+                    if (a.isOnSale !== b.isOnSale) {
+                        return a.isOnSale ? -1 : 1; 
+                    }
+
+                    if (criteria === 'price') {
+                        return order === 'asc' ? a.price - b.price : b.price - a.price;
+                    } else if (criteria === 'rating') {
+                        return order === 'asc' ? a.rating - b.rating : b.rating - a.rating;
+                    }
+                });
+
+            productsContainer.innerHTML = '';
+            sortedProducts.forEach(item => productsContainer.appendChild(item.product));
+        };
+
+        const filterProducts = () => {
+            const searchText = searchInput.value.toLowerCase();
+
+            if (searchText === '') {
+                products.forEach(product => {
+                    product.style.display = '';
+                });
+                return;
+            }
+
+            let matchedCategory = null;
+
+            products.forEach(product => {
+                const productData = getProductData(product);
+                const productName = productData.productName;
+
+                if (productName.includes(searchText)) {
+                    matchedCategory = productData.category;
+                }
+            });
+
+            products.forEach(product => {
+                const productData = getProductData(product);
+                if (productData.category === matchedCategory) {
+                    product.style.display = '';
+                } else {
+                    product.style.display = 'none';
+                }
+            });
+        };
+
+        searchButton.addEventListener('click', filterProducts);
+
+        sortProducts('price', 'asc'); 
+
+        document.querySelector('.dropdown-menu').addEventListener('click', function(event) {
+            if (event.target.matches('.dropdown-item')) {
+                const sortOption = event.target.textContent.trim();
+                if (sortOption === 'Price High to Low') {
+                    sortProducts('price', 'desc');
+                } else if (sortOption === 'Price Low to High') {
+                    sortProducts('price', 'asc');
+                } else if (sortOption === 'Rating Low to High') {
+                    sortProducts('rating', 'asc');
+                } else if (sortOption === 'Rating High to Low') {
+                    sortProducts('rating', 'desc');
+                }
+            }
+        });
+    });
+</script>
+</body>
+</html>
